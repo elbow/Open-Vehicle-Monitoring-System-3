@@ -9,6 +9,8 @@
 ;    (C) 2011-2017  Mark Webb-Johnson
 ;    (C) 2011        Sonny Chen @ EPRO/DX
 ;
+;    2020	    BMWi3 support: Stephen Davies
+;
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
 ; in the Software without restriction, including without limitation the rights
@@ -29,30 +31,30 @@
 */
 
 #include "ovms_log.h"
-static const char *TAG = "v-none";
+static const char *TAG = "v-bmwi3";
 
 #include <stdio.h>
-#include "vehicle_none.h"
+#include "vehicle_bmwi3.h"
 
-OvmsVehicleNone::OvmsVehicleNone()
+OvmsVehicleBMWi3::OvmsVehicleBMWi3()
   {
-  ESP_LOGI(TAG, "Generic NONE vehicle module");
+  ESP_LOGI(TAG, "Generic BMW i3/i3s vehicle module");
   }
 
-OvmsVehicleNone::~OvmsVehicleNone()
+OvmsVehicleBMWi3::~OvmsVehicleBMWi3()
   {
-  ESP_LOGI(TAG, "Shutdown NONE vehicle module");
+  ESP_LOGI(TAG, "Shutdown BMW i3/i3s vehicle module");
   }
 
-class OvmsVehicleNoneInit
+class OvmsVehicleBMWi3Init
   {
-  public: OvmsVehicleNoneInit();
-} MyOvmsVehicleNoneInit  __attribute__ ((init_priority (9000)));
+  public: OvmsVehicleBMWi3Init();
+} MyOvmsVehicleBMWi3Init  __attribute__ ((init_priority (9000)));
 
-OvmsVehicleNoneInit::OvmsVehicleNoneInit()
+OvmsVehicleBMWi3Init::OvmsVehicleBMWi3Init()
   {
-  ESP_LOGI(TAG, "Registering Vehicle: NONE (9000)");
+  ESP_LOGI(TAG, "Registering Vehicle: BMW i3 (9000)");
 
-  MyVehicleFactory.RegisterVehicle<OvmsVehicleNone>("NONE","Empty vehicle");
+  MyVehicleFactory.RegisterVehicle<OvmsVehicleBMWi3>("BMWI3","BMW i3, i3s");
   }
 

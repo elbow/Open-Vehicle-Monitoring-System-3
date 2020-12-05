@@ -28,18 +28,18 @@
 ; THE SOFTWARE.
 */
 
-#ifndef __VEHICLE_NONE_H__
-#define __VEHICLE_NONE_H__
+#ifndef __VEHICLE_BMWI3_H__
+#define __VEHICLE_BMWI3_H__
 
 #include "vehicle.h"
 
 using namespace std;
 
-class OvmsVehicleNone : public OvmsVehicle
+class OvmsVehicleBMWi3 : public OvmsVehicle
   {
   public:
-    OvmsVehicleNone();
-    ~OvmsVehicleNone();
+    OvmsVehicleBMWi3();
+    ~OvmsVehicleBMWi3();
   };
 
-#endif //#ifndef __VEHICLE_NONE_H__
+#endif //#ifndef __VEHICLE_BMWI3_H__
