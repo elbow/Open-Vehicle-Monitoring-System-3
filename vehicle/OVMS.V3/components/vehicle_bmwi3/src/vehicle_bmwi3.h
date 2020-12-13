@@ -2,12 +2,18 @@
 ;    Project:       Open Vehicle Monitor System
 ;    Date:          14th March 2017
 ;
-;    Changes:
+;    OVMS Changes:
 ;    1.0  Initial release
 ;
 ;    (C) 2011       Michael Stegen / Stegen Electronics
 ;    (C) 2011-2017  Mark Webb-Johnson
 ;    (C) 2011        Sonny Chen @ EPRO/DX
+;
+;    BMW I3 component:
+;    Developed by Stephen Davies <steve@telviva.co.za>
+;
+;    2020-12-12     0.0       Work started
+;
 ;
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
 ; of this software and associated documentation files (the "Software"), to deal
@@ -40,6 +46,10 @@ class OvmsVehicleBMWi3 : public OvmsVehicle
   public:
     OvmsVehicleBMWi3();
     ~OvmsVehicleBMWi3();
+
+  protected:
+    string bmwi3_obd_rxbuf;
+    void IncomingPollReply(canbus* bus, uint16_t type, uint16_t pid, uint8_t* data, uint8_t length, uint16_t mlremain);
   };
 
 #endif //#ifndef __VEHICLE_BMWI3_H__
