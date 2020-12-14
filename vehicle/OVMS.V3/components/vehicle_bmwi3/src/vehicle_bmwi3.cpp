@@ -40,18 +40,18 @@ static const char *TAG = "v-bmwi3";
 #include <stdio.h>
 #include "vehicle_bmwi3.h"
 
-#define BMWI3_ECU_SME                                     0x607   // "Battery Management Electronics"
-
 #define BMWI3_PID_SME_ABSOLUTE_SOC                        0xDDBC  // Absolute SOC values (current/max/min)
 #define BMWI3_PID_SME_HV_VOLTAGE                          0xDD68  // HV pack voltage (whether contactor closed or not)
+#define BMWI3_PID_SME_HV_AMPS                             0xDD69  // HV pack current flowing
 
 
 
 static const OvmsVehicle::poll_pid_t obdii_polls[] = {
   // TXMODULEID, RXMODULEID, TYPE, PID, { POLLTIMES }, BUS
-  { 0x6f1, BMWI3_ECU_SME, VEHICLE_POLL_TYPE_OBDIIEXTENDED, BMWI3_PID_SME_ABSOLUTE_SOC, {  60, 60, 60 }, 0 }, // SOC
-  { 0x6f1, BMWI3_ECU_SME, VEHICLE_POLL_TYPE_OBDIIEXTENDED, BMWI3_PID_SME_HV_VOLTAGE,   {  60, 60, 60 }, 0 }, // Volts
-  { 0, 0, 0x00, 0x00, { 0, 0, 0 }, 0 }
+  { 0x6f107, 0x607f1, VEHICLE_POLL_TYPE_OBDIIEXTENDED, BMWI3_PID_SME_ABSOLUTE_SOC, {  60, 60, 60 }, 0, ISOTP_EXTADR }, // SME: SOC
+  { 0x6f107, 0x607f1, VEHICLE_POLL_TYPE_OBDIIEXTENDED, BMWI3_PID_SME_HV_VOLTAGE,   {  60, 60, 60 }, 0, ISOTP_EXTADR }, // SME: HV Volts
+  { 0x6f107, 0x607f1, VEHICLE_POLL_TYPE_OBDIIEXTENDED, BMWI3_PID_SME_HV_AMPS,      {   2,  2,  2 }, 0, ISOTP_EXTADR }, // SME: HV Amps
+  POLL_LIST_END
 };
 
 OvmsVehicleBMWi3::OvmsVehicleBMWi3()
@@ -88,21 +88,30 @@ void OvmsVehicleBMWi3::IncomingPollReply(canbus* bus, uint16_t type, uint16_t pi
   }
   
   // We now have received the whole reply - lets mine our nuggets!
+  // FIXME? do we need to check where we received it from in case PIDs clash?
   switch (pid) {
 
-  case BMWI3_PID_SME_ANZEIGE_SOC: {
-    unsigned int soc_raw = ((unsigned int)rxbuf[0] << 8) | (unsigned int)rxbuf[1];
-    float soc = soc_raw / 10.0f;
+  case BMWI3_PID_SME_ABSOLUTE_SOC: {
+    float soc = RXBUF_UINT(0) / 10.0f;
     StdMetrics.ms_v_bat_soc->SetValue(soc);
     ESP_LOGD(TAG, "BMWI3: got SOC=%3.1f%%", soc);
     break;
   }
 
-  case 0xdd68: {
-    unsigned int volts_raw = ((unsigned int)rxbuf[0] << 8) | (unsigned int)rxbuf[1];
-    float volts = volts_raw / 100.0f;
+  case BMWI3_PID_SME_HV_VOLTAGE: {
+    float volts = RXBUF_UINT(0) / 100.0f;
     StdMetrics.ms_v_bat_voltage->SetValue(volts);
-    ESP_LOGD(TAG, "BMWI3: got Volts=%3.2f%%", volts);
+    ESP_LOGD(TAG, "BMWI3: got Volts=%3.2fV", volts);
+    break;
+  }
+
+  case BMWI3_PID_SME_HV_AMPS: {
+    float amps = RXBUF_SINT(2) / -100.0f;
+    // 
+    if (amps > -0.01 && amps < 0.01)
+      amps = 0.0;
+    StdMetrics.ms_v_bat_current->SetValue(amps);
+    ESP_LOGD(TAG, "BMWI3: got current=%3.2fA", amps);
     break;
   }
 

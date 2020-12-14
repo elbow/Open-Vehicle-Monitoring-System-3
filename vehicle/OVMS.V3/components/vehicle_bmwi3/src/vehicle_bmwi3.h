@@ -41,6 +41,23 @@
 
 using namespace std;
 
+// rxbuff access macros: b=byte# 0..7 / n=nibble# 0..15
+#define RXBUF_BYTE(b)     rxbuf[b]
+#define RXBUF_UINT(b)     (((UINT)RXBUF_BYTE(b) << 8) | RXBUF_BYTE(b+1))
+#define RXBUF_SINT(b)     (((short)(RXBUF_BYTE(b) << 8)) | RXBUF_BYTE(b+1))
+#define RXBUF_UINT24(b)   (((uint32_t)RXBUF_BYTE(b) << 16) | ((UINT)RXBUF_BYTE(b+1) << 8) | RXBUF_BYTE(b+2))
+#define RXBUF_UINT32(b)   (((uint32_t)RXBUF_BYTE(b) << 24) | ((uint32_t)RXBUF_BYTE(b+1) << 16)  | ((UINT)RXBUF_BYTE(b+2) << 8) | RXBUF_BYTE(b+3))
+#define RXBUF_NIBL(b)     (rxbuff[b] & 0x0f)
+#define RXBUF_NIBH(b)     (rxbuff[b] >> 4)
+#define RXBUF_NIB(n)      (((n)&1) ? RXBUF_NIBL((n)>>1) : RXBUF_NIBH((n)>>1))
+
+
+#define POLLSTATE_OFF		  PollSetState(0)
+#define POLLSTATE_ON		  PollSetState(1)
+#define POLLSTATE_RUNNING	  PollSetState(2)
+#define POLLSTATE_CHARGING	  PollSetState(3)
+
+
 class OvmsVehicleBMWi3 : public OvmsVehicle
   {
   public:
