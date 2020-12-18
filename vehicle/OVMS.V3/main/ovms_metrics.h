@@ -62,6 +62,7 @@ typedef enum : uint8_t
   Meters        = 12,
 
   Celcius       = 20,
+  Celsius       = 20,
   Fahrenheit    = 21,
 
   kPa           = 30,
