@@ -1,4 +1,7 @@
 {
+   "ovmscode": "KAF",
+   "ovmsextaddr": "5D",
+   "ovmsdesc": "Camera based driver assistance system",
    "tables" : {
       "TAB_ART_ZEICHEN" : [
          {

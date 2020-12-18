@@ -1,4 +1,7 @@
 {
+   "ovmscode" : "ZBE",
+   "ovmsextaddr" : "67",
+   "ovmsdesc" : "iDrive controller",
    "tables" : {
       "RES_0XD213_D" : [
          {

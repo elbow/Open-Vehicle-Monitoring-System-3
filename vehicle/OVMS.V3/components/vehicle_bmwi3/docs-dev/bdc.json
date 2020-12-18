@@ -1,4 +1,7 @@
 {
+   "ovmscode": "BDC",
+   "ovmsextaddr": "40",
+   "ovmsdesc": "Body domain controller",
    "tables" : {
       "TAB_LAMPEN_FUNKTION" : [
          {

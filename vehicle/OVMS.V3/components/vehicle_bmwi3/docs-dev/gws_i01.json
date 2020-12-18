@@ -1,4 +1,7 @@
 {
+   "ovmscode": "GWS",
+   "ovmsextaddr": "5E",
+   "ovmsdesc": "Gear selector switch",
    "tables" : {
       "TAB_ENTR_TASTER" : [
          {

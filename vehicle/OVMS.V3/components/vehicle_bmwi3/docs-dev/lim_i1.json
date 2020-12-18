@@ -1,5 +1,8 @@
 {
-   "tables" : {
+   "ovmscode": "LIM",
+   "ovmsextaddr": "14",
+   "ovmsdesc": "Charging interface module",
+   "tables" : {   
       "FUMWELTTEXTE" : [
          {
             "DIV" : "-",

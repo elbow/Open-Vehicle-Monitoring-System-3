@@ -1,4 +1,7 @@
 {
+   "ovmscode" : "SME",
+   "ovmsextaddr" : "07",
+   "ovmsdesc" : "Battery management electronics",
    "tables" : {
       "DTCSNAPSHOTIDENTIFIER" : [
          {

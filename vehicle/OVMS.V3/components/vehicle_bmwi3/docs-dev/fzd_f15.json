@@ -1,5 +1,8 @@
 {
-   "tables" : {
+   "ovmscode": "FZD",
+   "ovmsextaddr": "56",
+   "ovmsdesc": "Roof function centre",
+   "tables" : {   
       "TAB_FH_SHD_ESH_EINLERNEN" : [
          {
             "WERT" : "0x01",

@@ -1,5 +1,8 @@
 {
-   "tables" : {
+   "ovmscode": "EDM",
+   "ovmsextaddr": "12",
+   "ovmsdesc": "Electrical digital motor electronics (low voltage ECU)",
+   "tables" : {   
       "RES_0XADC6_R" : [
          {
             "INFO_EN" : "current state of the electric fan (0 = off, 1 = on)",

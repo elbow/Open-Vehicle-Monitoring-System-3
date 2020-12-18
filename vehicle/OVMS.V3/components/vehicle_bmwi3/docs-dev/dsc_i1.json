@@ -1,5 +1,8 @@
 {
-   "tables" : {
+   "ovmscode": "DSC",
+   "ovmsextaddr": "29",
+   "ovmsdesc": "Dynamic stability controller",
+   "tables" : {   
       "TAB_DSC_PHASE_ENTLUEFTUNG" : [
          {
             "TEXT_EN" : "no",

@@ -1,5 +1,8 @@
 {
-   "tables" : {
+"ovmscode": "KOM",
+"ovmsextaddr": "60",
+"ovmsdesc": "Instrument panel",
+"tables" : {
       "RES_0X4010_D" : [
          {
             "MUL" : "1.0",

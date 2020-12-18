@@ -1,4 +1,7 @@
 {
+   "ovmscode": "NBT",
+   "ovmsextaddr": "63",
+   "ovmsdesc": "Headunit high",
    "tables" : {
       "DEVUDS_HWVERSION_NBTEVO" : [
          {

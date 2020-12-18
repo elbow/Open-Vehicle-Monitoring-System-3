@@ -1,4 +1,7 @@
 {
+   "ovmscode": "IHX",
+   "ovmsextaddr": "78",
+   "ovmsdesc": "Integrated automatic heating/aircon",
    "tables" : {
       "RES_0XD98A_D" : [
          {

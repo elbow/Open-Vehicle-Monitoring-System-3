@@ -1,5 +1,8 @@
 {
-   "tables" : {
+   "ovmscode": "SAS",
+   "ovmsextaddr": "22",
+   "ovmsdesc": "Optional equipment system",
+   "tables" : {   
       "TAB_ERRID_FASDSP" : [
          {
             "WERT" : "0",

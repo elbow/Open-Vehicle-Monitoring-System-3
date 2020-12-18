@@ -1,5 +1,8 @@
 {
-   "tables" : {
+   "ovmscode": "KLE",
+   "ovmsextaddr": "15",
+   "ovmsdesc": "Convenience charging electronics",
+   "tables" : {   
       "DIGITALARGUMENT" : [
          {
             "WERT" : "1",

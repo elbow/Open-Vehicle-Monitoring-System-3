@@ -1,5 +1,8 @@
 {
-   "tables" : {
+   "ovmscode": "EME",
+   "ovmsextaddr": "1A",
+   "ovmsdesc": "Electrical machine electronics",
+   "tables" : {   
       "TAB_AE_ELUP_ROHSIGNALE" : [
          {
             "TEXT" : "Nicht definiert",
