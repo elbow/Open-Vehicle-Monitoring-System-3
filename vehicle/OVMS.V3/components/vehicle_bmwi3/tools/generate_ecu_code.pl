@@ -148,7 +148,7 @@ foreach my $function (@$functions) {
 
     # Uniqueify function name (there are dupes, though I'm sure there shouldn't be)
     if ($usedfunctionnames->{$functionname}) {
-        $functionname = uc($function->{ID}) . "_" . $functionname;
+        $functionname = $functionname . '_'. uc($function->{ID});
         print STDERR "De-duped function " . $function->{ARG} . " as $functionname\n";
     }
     $usedfunctionnames->{$functionname} = 1;
@@ -197,7 +197,7 @@ foreach my $function (@$functions) {
             # De-dupe it
             if ($usedresultnames->{$resultname}) {
                 print STDERR "De-duped result $resultname as " . uc($function->{ID}) . "_" . $resultname . "\n";
-                $resultname = uc($function->{ID}) . "_" . $resultname;
+                $resultname =  $resultname . '_' . uc($function->{ID});
             }
             $usedresultnames->{$resultname} = 1;
             # Build the macro expansion including any manipulations.
@@ -270,7 +270,7 @@ foreach my $function (@$functions) {
                     }
                 }
                 print STDERR "Don't have format for $ctype\n" unless ($formats->{$ctype});
-                push @codelines, "    ESP_LOGD(TAG, \"From ECU %s, pid %s: got %s=" . ($isbitfield ? "%x" : $formats->{$ctype}) . "%s\\n\", \"$ECU\", \"" . $functionname . "\", \"$resultname\", $resultname, " . (($unit && $unit ne "-") ? "\"\\\"$unit\\\"\"" : "\"\"") . ");\n";
+                push @codelines, "    ESP_LOGD(TAG, \"From ECU %s, pid %s: got %s=" . ($isbitfield ? "%lx" : $formats->{$ctype}) . "%s\\n\", \"$ECU\", \"" . $functionname . "\", \"$resultname\", " . ($isbitfield ? "(unsigned long)" : "") . "$resultname, " . (($unit && $unit ne "-") ? "\"\\\"$unit\\\"\"" : "\"\"") . ");\n";
             }
         }
         # code
@@ -279,7 +279,10 @@ foreach my $function (@$functions) {
     }
 
     # code
-    print CODE "\n    // ==========  Add your processing here ==========\n\n    break;\n  }";
+    print CODE "\n    // ==========  Add your processing here ==========\n";
+    print CODE "    hexdump(rxbuf, type, pid);\n";
+
+    print CODE "\n    break;\n  }";
 
 
     # polllist
