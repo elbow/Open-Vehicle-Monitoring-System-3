@@ -1,5 +1,6 @@
 #! /bin/bash
 
+# Still unclear:
 # 01 ? Initialisation sends 010319020C000000 and gets 0601 F1 03 5902FF
 # 06 ? Initialisation sends 060319020C000000 and gets 0606 F1 03 5902FF -> same
 # 2C ? Same init thing as above
@@ -9,6 +10,7 @@
 # 44 ? Again
 # 61 ? And again
 
+# Identified:
 # 07 SME    Battery management electronics
 # 10 ZGW    
 # 12 EDME   Electrical digital motor electronics (low voltage ECU)
@@ -19,7 +21,7 @@
 # 29 DSC    Dynamic stability control
 # 30 EPS    Electromechanical power steering
 # 35 TBX5
-# 40 BDC    The all powerful body domain controller
+# 40 BDC    The body domain controller
 # 56 FZD    Roof function center (seems to be the alarm mostly)
 # 5D KAFAS  Camera based driver assist system
 # 5E GWS    Gear selector switch
@@ -29,18 +31,18 @@
 # 78 IHX    Integrated automatic heating / aircon - though its mainly the buttons I think)
 
 
-perl ./generate_ecu_code.pl ../docs-dev/sme_i1.json >../generated/ecu_sme_defines.h  3>../generated/ecu_sme_code.cpp 4>../generated/ecu_sme_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/edmei1.json >../generated/ecu_edm_defines.h  3>../generated/ecu_edm_code.cpp 4>../generated/ecu_edm_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/lim_i1.json >../generated/ecu_lim_defines.h  3>../generated/ecu_lim_code.cpp 4>../generated/ecu_lim_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/ucx2_i01.json >../generated/ecu_kle_defines.h  3>../generated/ecu_kle_code.cpp 4>../generated/ecu_kle_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/eme_i01.json >../generated/ecu_eme_defines.h  3>../generated/ecu_eme_code.cpp 4>../generated/ecu_eme_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/sas_i1.json >../generated/ecu_sas_defines.h  3>../generated/ecu_sas_code.cpp 4>../generated/ecu_sas_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/dsc_i1.json >../generated/ecu_dsc_defines.h  3>../generated/ecu_dsc_code.cpp 4>../generated/ecu_dsc_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/bdc.json >../generated/ecu_bdc_defines.h  3>../generated/ecu_bdc_code.cpp 4>../generated/ecu_bdc_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/fzd_f15.json >../generated/ecu_fzd_defines.h  3>../generated/ecu_fzd_code.cpp 4>../generated/ecu_fzd_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/kafas20.json >../generated/ecu_kaf_defines.h  3>../generated/ecu_kaf_code.cpp 4>../generated/ecu_kaf_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/komb25.json >../generated/ecu_kom_defines.h  3>../generated/ecu_kom_code.cpp 4>../generated/ecu_kom_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/nbtevo.json >../generated/ecu_nbt_defines.h  3>../generated/ecu_nbt_code.cpp 4>../generated/ecu_nbt_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/zbe6.json >../generated/ecu_zbe_defines.h  3>../generated/ecu_zbe_code.cpp 4>../generated/ecu_zbe_polls.cpp
-perl ./generate_ecu_code.pl ../docs-dev/ihx_i1.json >../generated/ecu_ihx_defines.h  3>../generated/ecu_ihx_code.cpp 4>../generated/ecu_ihx_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/sme_i1.json >../ecu_defintions/ecu_sme_defines.h  3>../ecu_defintions/ecu_sme_code.cpp 4>../ecu_defintions/ecu_sme_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/edmei1.json >../ecu_defintions/ecu_edm_defines.h  3>../ecu_defintions/ecu_edm_code.cpp 4>../ecu_defintions/ecu_edm_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/lim_i1.json >../ecu_defintions/ecu_lim_defines.h  3>../ecu_defintions/ecu_lim_code.cpp 4>../ecu_defintions/ecu_lim_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/ucx2_i01.json >../ecu_defintions/ecu_kle_defines.h  3>../ecu_defintions/ecu_kle_code.cpp 4>../ecu_defintions/ecu_kle_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/eme_i01.json >../ecu_defintions/ecu_eme_defines.h  3>../ecu_defintions/ecu_eme_code.cpp 4>../ecu_defintions/ecu_eme_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/sas_i1.json >../ecu_defintions/ecu_sas_defines.h  3>../ecu_defintions/ecu_sas_code.cpp 4>../ecu_defintions/ecu_sas_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/dsc_i1.json >../ecu_defintions/ecu_dsc_defines.h  3>../ecu_defintions/ecu_dsc_code.cpp 4>../ecu_defintions/ecu_dsc_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/bdc.json >../ecu_defintions/ecu_bdc_defines.h  3>../ecu_defintions/ecu_bdc_code.cpp 4>../ecu_defintions/ecu_bdc_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/fzd_f15.json >../ecu_defintions/ecu_fzd_defines.h  3>../ecu_defintions/ecu_fzd_code.cpp 4>../ecu_defintions/ecu_fzd_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/kafas20.json >../ecu_defintions/ecu_kaf_defines.h  3>../ecu_defintions/ecu_kaf_code.cpp 4>../ecu_defintions/ecu_kaf_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/komb25.json >../ecu_defintions/ecu_kom_defines.h  3>../ecu_defintions/ecu_kom_code.cpp 4>../ecu_defintions/ecu_kom_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/nbtevo.json >../ecu_defintions/ecu_nbt_defines.h  3>../ecu_defintions/ecu_nbt_code.cpp 4>../ecu_defintions/ecu_nbt_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/zbe6.json >../ecu_defintions/ecu_zbe_defines.h  3>../ecu_defintions/ecu_zbe_code.cpp 4>../ecu_defintions/ecu_zbe_polls.cpp
+perl ./generate_ecu_code.pl ../docs-dev/ihx_i1.json >../ecu_defintions/ecu_ihx_defines.h  3>../ecu_defintions/ecu_ihx_code.cpp 4>../ecu_defintions/ecu_ihx_polls.cpp
 

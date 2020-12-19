@@ -218,20 +218,21 @@ foreach my $function (@$functions) {
             } else {
                 # For a bitfield we can look up the bit definitions.
                 my $isbitfield = 0;
+                my $bits;
                 if ($datatype eq "BITFIELD") {
                     $isbitfield = 1;
-                    my $bits = $tables->{$resultname};
+                    $bits = $tables->{$resultname};
                     # print Dumper({ "resultname" => $resultname, "datatype" => $datatype, "bitsdesc" => $bits});
                     if ($bits && $bits->[0]) {
                         $datatype = $bits->[0]->{DATENTYP};
                         print "\n    // $resultname is a BITFIELD of size $datatype.  We don't yet generate definitions for each bit, we treat as the host data type";
                         print "\n        // $desc" if ($desc ne '');
                         foreach my $bit (@$bits) {
-                            print "\n            // Mask: " . $bit->{MASKE} . " - " . $bit->{INFO_EN};
+                            print "\n            // " . $bit->{RESULTNAME} . ": Mask: " . $bit->{MASKE} . " - " . $bit->{INFO_EN};
                         }
                     } else {
                         $datatype = "unsigned char";
-                        print "\n    // $resultname is a BITFIELD of unknown size.  We don't yet generate definitions for each bit, and we GUESSED it is one byte ***";
+                        print "\n    // $resultname is a BITFIELD of unknown size.  We don't have definitions for each bit, and we GUESSED it is one byte ***";
                         print "\n        // $desc" if ($desc ne '');
                     }
                 }
@@ -256,10 +257,20 @@ foreach my $function (@$functions) {
                 print "\n        // $desc" if ($desc ne '');
 
                 # code
-                push @codelines, "    $ctype $resultname = $expr;\n";
-                push @codelines, "        // $desc";
+                push @codelines, "\n    $ctype $resultname = $expr;\n";
+                push @codelines, "        // $desc\n";
+                if ($isbitfield) {
+                    if ($bits && $bits->[0]) {
+                        push @codelines, "        // $resultname is a BITFIELD of size $datatype.  We don't yet generate definitions for each bit, we treat as the host data type\n";
+                        foreach my $bit (@$bits) {
+                            push @codelines, "            // " . $bit->{RESULTNAME} . ": Mask: " . $bit->{MASKE} . " - " . $bit->{INFO_EN} . "\n";
+                        }
+                    } else {
+                        push @codelines, "            // $resultname is a BITFIELD of unknown size.  We don't have definitions for each bit, and we GUESSED it is one byte ***\n";            
+                    }
+                }
                 print STDERR "Don't have format for $ctype\n" unless ($formats->{$ctype});
-                push @codelines, "    ESP_LOGD(TAG, \"From ECU %s, pid %s: got %s=" . $formats->{$ctype} . "%s\\n\", \"$ECU\", \"" . $functionname . "\", \"$resultname\", $resultname, " . (($unit && $unit ne "-") ? "\"\\\"$unit\\\"\"" : "\"\"") . ");\n";
+                push @codelines, "    ESP_LOGD(TAG, \"From ECU %s, pid %s: got %s=" . ($isbitfield ? "%x" : $formats->{$ctype}) . "%s\\n\", \"$ECU\", \"" . $functionname . "\", \"$resultname\", $resultname, " . (($unit && $unit ne "-") ? "\"\\\"$unit\\\"\"" : "\"\"") . ");\n";
             }
         }
         # code
@@ -268,7 +279,7 @@ foreach my $function (@$functions) {
     }
 
     # code
-    print CODE "\n    // ==========  Add your processing here ==========\n    break;\n  }";
+    print CODE "\n    // ==========  Add your processing here ==========\n\n    break;\n  }";
 
 
     # polllist
