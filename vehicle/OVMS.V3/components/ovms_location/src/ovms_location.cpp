@@ -338,15 +338,16 @@ void location_set(int verbosity, OvmsWriter* writer, OvmsCommand* cmd, int argc,
 void location_radius(int verbosity, OvmsWriter* writer, OvmsCommand* cmd, int argc, const char* const* argv)
   {
   const char *name = argv[0];
-  OvmsLocation* loc = MyLocations.m_locations.FindUniquePrefix(name);
+  OvmsLocation* const* locp = MyLocations.m_locations.FindUniquePrefix(name);
 
-  if (loc == NULL)
+  if (locp == NULL)
     {
     writer->printf("Error: No location %s defined\n",name);
     return;
     }
 
   std::string buf;
+  OvmsLocation* loc = *locp;
   loc->m_radius = atoi(argv[1]);
   loc->Store(buf);
   writer->puts("Location radius set");
@@ -355,15 +356,15 @@ void location_radius(int verbosity, OvmsWriter* writer, OvmsCommand* cmd, int ar
 void location_rm(int verbosity, OvmsWriter* writer, OvmsCommand* cmd, int argc, const char* const* argv)
   {
   const char *name = argv[0];
-  OvmsLocation* loc = MyLocations.m_locations.FindUniquePrefix(name);
+  OvmsLocation* const* locp = MyLocations.m_locations.FindUniquePrefix(name);
 
-  if (loc == NULL)
+  if (locp == NULL)
     {
     writer->printf("Error: No location %s defined\n",name);
     return;
     }
 
-  MyConfig.DeleteInstance(LOCATIONS_PARAM,loc->m_name);
+  MyConfig.DeleteInstance(LOCATIONS_PARAM,(*locp)->m_name);
   writer->puts("Location removed");
   }
 
@@ -414,12 +415,13 @@ void location_action(int verbosity, OvmsWriter* writer, enum LocationAction act,
   int remove = *rargv[2] == 'r' ? 1 : 0;
   bool enter = *rargv[2+remove] == 'e';
   const char* name = rargv[3+remove];
-  OvmsLocation* loc = MyLocations.m_locations.FindUniquePrefix(name);
-  if (loc == NULL)
+  OvmsLocation* const* locp = MyLocations.m_locations.FindUniquePrefix(name);
+  if (locp == NULL)
     {
     writer->printf("Error: No location %s defined\n",name);
     return;
     }
+  OvmsLocation* loc = *locp;
   if (!remove)
     {
     loc->m_actions.push_back(new OvmsLocationAction(enter, act, params.c_str(), params.length()));
@@ -512,10 +514,10 @@ void location_all(int verbosity, OvmsWriter* writer, OvmsCommand* cmd, int argc,
 static duk_ret_t DukOvmsLocationStatus(duk_context *ctx)
   {
   const char *mn = duk_to_string(ctx,0);
-  OvmsLocation *loc = MyLocations.m_locations.FindUniquePrefix(mn);
-  if (loc)
+  OvmsLocation* const* locp = MyLocations.m_locations.FindUniquePrefix(mn);
+  if (locp && *locp)
     {
-    duk_push_boolean(ctx, loc->m_inlocation);
+    duk_push_boolean(ctx, (*locp)->m_inlocation);
     return 1;  /* one return value */
     }
   else
@@ -551,25 +553,25 @@ OvmsLocations::OvmsLocations()
   OvmsCommand* cmd_rm_enter = cmd_rm_action->RegisterCommand("enter","Remove an action from entering a location", location_all, "<location> [$C]", 1, 1, true, location_validate);
   OvmsCommand* cmd_rm_leave = cmd_rm_action->RegisterCommand("leave","Remove an action from leaving a location", location_all, "<location> [$C]", 1, 1, true, location_validate);
 
-  OvmsCommand* enter_homelink = cmd_enter->RegisterCommand("homelink","Transmit Homelink signal",NULL,"1|2|3");
+  OvmsCommand* enter_homelink = cmd_enter->RegisterCommand("homelink","Transmit Homelink signal");
   enter_homelink->RegisterCommand("1","Homelink 1 signal",location_homelink,"", 0, 0, true);
   enter_homelink->RegisterCommand("2","Homelink 2 signal",location_homelink,"", 0, 0, true);
   enter_homelink->RegisterCommand("3","Homelink 3 signal",location_homelink,"", 0, 0, true);
   cmd_enter->RegisterCommand("acc","ACC profile",location_acc,"<profile>", 1, 1, true);
   cmd_enter->RegisterCommand("notify","Text notification",location_notify,"<text>", 1, INT_MAX, true);
-  OvmsCommand* leave_homelink = cmd_leave->RegisterCommand("homelink","Transmit Homelink signal",NULL,"1|2|3");
+  OvmsCommand* leave_homelink = cmd_leave->RegisterCommand("homelink","Transmit Homelink signal");
   leave_homelink->RegisterCommand("1","Homelink 1 signal",location_homelink,"", 0, 0, true);
   leave_homelink->RegisterCommand("2","Homelink 2 signal",location_homelink,"", 0, 0, true);
   leave_homelink->RegisterCommand("3","Homelink 3 signal",location_homelink,"", 0, 0, true);
   cmd_leave->RegisterCommand("notify","Text notification",location_notify,"<text>", 1, INT_MAX, true);
 
-  OvmsCommand* rm_enter_homelink = cmd_rm_enter->RegisterCommand("homelink","Remove Homelink signal",location_homelink_any,"[1|2|3]");
+  OvmsCommand* rm_enter_homelink = cmd_rm_enter->RegisterCommand("homelink","Remove Homelink signal",location_homelink_any);
   rm_enter_homelink->RegisterCommand("1","Homelink 1 signal",location_homelink,"", 0, 0, true);
   rm_enter_homelink->RegisterCommand("2","Homelink 2 signal",location_homelink,"", 0, 0, true);
   rm_enter_homelink->RegisterCommand("3","Homelink 3 signal",location_homelink,"", 0, 0, true);
   cmd_rm_enter->RegisterCommand("acc","Remove ACC profile",location_acc,"[<profile>]", 0, 1, true);
   cmd_rm_enter->RegisterCommand("notify","Remove text notification",location_notify,"[<text>]", 0, INT_MAX, true);
-  OvmsCommand* rm_leave_homelink = cmd_rm_leave->RegisterCommand("homelink","Remove Homelink signal",location_homelink_any,"[1|2|3]");
+  OvmsCommand* rm_leave_homelink = cmd_rm_leave->RegisterCommand("homelink","Remove Homelink signal",location_homelink_any);
   rm_leave_homelink->RegisterCommand("1","Homelink 1 signal",location_homelink,"", 0, 0, true);
   rm_leave_homelink->RegisterCommand("2","Homelink 2 signal",location_homelink,"", 0, 0, true);
   rm_leave_homelink->RegisterCommand("3","Homelink 3 signal",location_homelink,"", 0, 0, true);

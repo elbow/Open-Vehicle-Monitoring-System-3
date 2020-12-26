@@ -71,10 +71,19 @@ int config_validate(OvmsWriter* writer, OvmsCommand* cmd, int argc, const char* 
   {
   if (!MyConfig.ismounted())
     return -1;
+  // argv[0] is the <param>
   if (argc == 1)
     return MyConfig.m_map.Validate(writer, argc, argv[0], complete);
-  OvmsConfigParam* p = MyConfig.m_map.FindUniquePrefix(argv[0]);
-  return p->m_map.Validate(writer, argc, argv[1], complete);
+  // argv[1] is the <instance>
+  if (argc == 2)
+    {
+    OvmsConfigParam* const* p = MyConfig.m_map.FindUniquePrefix(argv[0]);
+    if (!p)	// <param> was not valid, so can't check <instance>
+      return -1;
+    return (*p)->m_map.Validate(writer, argc, argv[1], complete);
+    }
+  // argv[2] is the value, which we can't validate
+  return -1;
   }
 
 void config_list(int verbosity, OvmsWriter* writer, OvmsCommand* cmd, int argc, const char* const* argv)
@@ -508,8 +517,10 @@ bool OvmsConfig::IsDefined(std::string param, std::string instance)
 OvmsConfigParam* OvmsConfig::CachedParam(std::string param)
   {
   if (!m_mounted) return NULL;
-
-  return m_map.FindUniquePrefix(param.c_str());
+  OvmsConfigParam* const* p = m_map.FindUniquePrefix(param.c_str());
+  if (!p)
+    return NULL;
+  return *p;
   }
 
 bool OvmsConfig::ProtectedPath(std::string path)
