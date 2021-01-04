@@ -45,4 +45,5 @@ perl ./generate_ecu_code.pl ../dev/komb25.json >../ecu_definitions/ecu_kom_defin
 perl ./generate_ecu_code.pl ../dev/nbtevo.json >../ecu_definitions/ecu_nbt_defines.h  3>../ecu_definitions/ecu_nbt_code.cpp 4>../ecu_definitions/ecu_nbt_polls.cpp
 perl ./generate_ecu_code.pl ../dev/zbe6.json >../ecu_definitions/ecu_zbe_defines.h  3>../ecu_definitions/ecu_zbe_code.cpp 4>../ecu_definitions/ecu_zbe_polls.cpp
 perl ./generate_ecu_code.pl ../dev/ihx_i1.json >../ecu_definitions/ecu_ihx_defines.h  3>../ecu_definitions/ecu_ihx_code.cpp 4>../ecu_definitions/ecu_ihx_polls.cpp
+perl ./generate_ecu_code.pl ../dev/eps_i1.json >../ecu_definitions/ecu_eps_defines.h  3>../ecu_definitions/ecu_eps_code.cpp 4>../ecu_definitions/ecu_eps_polls.cpp
 
