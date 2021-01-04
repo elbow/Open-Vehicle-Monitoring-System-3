@@ -141,6 +141,9 @@ class OvmsVehicleVWeUp : public OvmsVehicle
     TimerHandle_t m_sendOcuHeartbeat;
     TimerHandle_t m_ccCountdown;
 
+  protected:
+    int GetNotifyChargeStateDelay(const char* state);
+
   public:
     void T26Init();
     void WebInit();
@@ -187,6 +190,7 @@ class OvmsVehicleVWeUp : public OvmsVehicle
     float OdoStart;
     float EnergyRecdStart;
     float EnergyUsedStart;
+    float EnergyChargedStart;
 
   // --------------------------------------------------------------------------
   // OBD2 subsystem
