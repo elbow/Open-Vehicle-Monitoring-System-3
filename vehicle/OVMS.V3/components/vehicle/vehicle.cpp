@@ -423,6 +423,11 @@ const char* OvmsVehicle::VehicleShortName()
   return MyVehicleFactory.ActiveVehicleName();
   }
 
+const char* OvmsVehicle::VehicleType()
+  {
+  return MyVehicleFactory.ActiveVehicleType();
+  }
+
 void OvmsVehicle::RxTask()
   {
   CAN_frame_t frame;
@@ -474,7 +479,7 @@ void OvmsVehicle::IncomingFrameCan4(CAN_frame_t* p_frame)
 
 void OvmsVehicle::Status(int verbosity, OvmsWriter* writer)
   {
-  writer->printf("Vehicle module %s loaded and running\n", VehicleShortName());
+  writer->printf("Vehicle module '%s' (code %s) loaded and running\n", VehicleShortName(), VehicleType());
   }
 
 void OvmsVehicle::RegisterCanBus(int bus, CAN_mode_t mode, CAN_speed_t speed, dbcfile* dbcfile)
@@ -771,7 +776,7 @@ void OvmsVehicle::NotifyBmsAlerts()
 // Override if your vehicle provides more detail.
 void OvmsVehicle::CalculateEfficiency()
   {
-  float consumption = 0, efficiency;;
+  float consumption = 0, efficiency;
   if (StdMetrics.ms_v_pos_speed->AsFloat() >= 5)
     consumption = StdMetrics.ms_v_bat_power->AsFloat(0, Watts) / StdMetrics.ms_v_pos_speed->AsFloat();
   efficiency = (StdMetrics.ms_v_bat_consumption->AsFloat() * 4 + consumption) / 5;

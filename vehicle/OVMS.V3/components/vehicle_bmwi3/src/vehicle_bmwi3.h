@@ -13,6 +13,7 @@
 ;    Developed by Stephen Davies <steve@telviva.co.za>
 ;
 ;    2020-12-12     0.0       Work started
+;    2021-01-04               Ready to merge as first version
 ;
 ;
 ; Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -79,8 +80,10 @@ class OvmsVehicleBMWi3 : public OvmsVehicle
     int framecount = 0, tickercount = 0, replycount = 0;  // Keep track of when the car is talking or schtum.
     int eps_messages = 0;                                 // Is the EPS (power steering) alive?  If so we are "on"
     int pollerstate;                                      // What pollerstate we are in
+    int last_obd_data_seen;                               // "monotonic" value last time we saw data
 
     // Local metrics
+    // Wheel speeds
     OvmsMetricFloat *mt_i3_wheel1_speed;
     OvmsMetricFloat *mt_i3_wheel2_speed;
     OvmsMetricFloat *mt_i3_wheel3_speed;
@@ -135,6 +138,7 @@ class OvmsVehicleBMWi3 : public OvmsVehicle
     // State
     OvmsMetricBool *mt_i3_obdtraffic;
     OvmsMetricInt *mt_i3_pollermode;
+    OvmsMetricInt *mt_i3_age;
 
     void IncomingPollReply(canbus* bus, uint16_t type, uint16_t pid, uint8_t* data, uint8_t length, uint16_t mlremain);
   };

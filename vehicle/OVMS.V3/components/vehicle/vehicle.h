@@ -185,6 +185,7 @@ class OvmsVehicle : public InternalRamAllocated
     OvmsVehicle();
     virtual ~OvmsVehicle();
     virtual const char* VehicleShortName();
+    virtual const char* VehicleType();
 
   protected:
     QueueHandle_t m_rxqueue;
@@ -411,7 +412,7 @@ class OvmsVehicle : public InternalRamAllocated
     uint8_t           m_poll_fc_septime;      // Flow control separation time for multi frame responses
 
   private:
-    OvmsMutex         m_poll_single_mutex;    // PollSingleRequest() concurrency protection
+    OvmsRecMutex      m_poll_single_mutex;    // PollSingleRequest() concurrency protection
     std::string*      m_poll_single_rxbuf;    // … response buffer
     uint16_t          m_poll_single_rxerr;    // … response error code (NRC)
     OvmsSemaphore     m_poll_single_rxdone;   // … response done (ok/error)
@@ -423,7 +424,10 @@ class OvmsVehicle : public InternalRamAllocated
     void PollSetResponseSeparationTime(uint8_t septime);
     int PollSingleRequest(canbus* bus, uint32_t txid, uint32_t rxid,
                       std::string request, std::string& response,
-                      int timeout_ms /*=3000*/, uint8_t protocol /*=ISOTP_STD*/);
+                      int timeout_ms=3000, uint8_t protocol=ISOTP_STD);
+    int PollSingleRequest(canbus* bus, uint32_t txid, uint32_t rxid,
+                      uint8_t polltype, uint16_t pid, std::string& response,
+                      int timeout_ms=3000, uint8_t protocol=ISOTP_STD);
 
   // BMS helpers
   protected:

@@ -72,7 +72,7 @@
 #include <string>
 static const char *TAG = "v-vweup";
 
-#define VERSION "0.4.0"
+#define VERSION "0.5.1"
 
 #include <stdio.h>
 #include <string>
@@ -95,24 +95,26 @@ using namespace std;
 
 class OvmsVehicleVWeUpInit
 {
-public: OvmsVehicleVWeUpInit();
+public:
+  OvmsVehicleVWeUpInit();
 } OvmsVehicleVWeUpInit __attribute__((init_priority(9000)));
 
 OvmsVehicleVWeUpInit::OvmsVehicleVWeUpInit()
 {
-    ESP_LOGI(TAG, "Registering Vehicle: VW e-Up (9000)");
-    MyVehicleFactory.RegisterVehicle<OvmsVehicleVWeUp>("VWUP", "VW e-Up");
+  ESP_LOGI(TAG, "Registering Vehicle: VW e-Up (9000)");
+  MyVehicleFactory.RegisterVehicle<OvmsVehicleVWeUp>("VWUP", "VW e-Up");
 }
 
 
-OvmsVehicleVWeUp* OvmsVehicleVWeUp::GetInstance(OvmsWriter* writer)
+OvmsVehicleVWeUp *OvmsVehicleVWeUp::GetInstance(OvmsWriter *writer)
 {
-  OvmsVehicleVWeUp* eup = (OvmsVehicleVWeUp*) MyVehicleFactory.ActiveVehicle();
-  
+  OvmsVehicleVWeUp *eup = (OvmsVehicleVWeUp *) MyVehicleFactory.ActiveVehicle();
+
   string type = StdMetrics.ms_v_type->AsString();
   if (!eup || type != "VWUP") {
-    if (writer)
+    if (writer) {
       writer->puts("Error: VW e-Up vehicle module not selected");
+    }
     return NULL;
   }
   return eup;
@@ -127,25 +129,32 @@ OvmsVehicleVWeUp* OvmsVehicleVWeUp::GetInstance(OvmsWriter* writer)
 
 OvmsVehicleVWeUp::OvmsVehicleVWeUp()
 {
-    ESP_LOGI(TAG, "Start VW e-Up vehicle module");
+  ESP_LOGI(TAG, "Start VW e-Up vehicle module");
 
-// init configs:
-    MyConfig.RegisterParam("xvu", "VW e-Up", true, true);
-    
-    ConfigChanged(NULL);
+  // Init metrics:
+  m_version = MyMetrics.InitString("xvu.m.version", 0, VERSION " " __DATE__ " " __TIME__);
+
+  // init configs:
+  MyConfig.RegisterParam("xvu", "VW e-Up", true, true);
+
+  ConfigChanged(NULL);
 
 #ifdef CONFIG_OVMS_COMP_WEBSERVER
-    WebInit();
+  WebInit();
 #endif
 }
 
 OvmsVehicleVWeUp::~OvmsVehicleVWeUp()
 {
-    ESP_LOGI(TAG, "Stop VW e-Up vehicle module");
+  ESP_LOGI(TAG, "Stop VW e-Up vehicle module");
 
 #ifdef CONFIG_OVMS_COMP_WEBSERVER
-    WebDeInit();
+  WebDeInit();
 #endif
+
+  // delete metrics:
+  MyMetrics.DeregisterMetric(m_version);
+  // TODO: delete all xvu metrics
 }
 
 /*
@@ -157,157 +166,213 @@ const char* OvmsVehicleVWeUp::VehicleShortName()
 
 bool OvmsVehicleVWeUp::SetFeature(int key, const char *value)
 {
-    int i;
-    int n;
-    switch (key)
-    {
-    case 15:
-    {
-        int bits = atoi(value);
-        MyConfig.SetParamValueBool("xvu", "canwrite", (bits & 1) != 0);
-        return true;
+  int i;
+  int n;
+  switch (key) {
+    case 15: {
+      int bits = atoi(value);
+      MyConfig.SetParamValueBool("xvu", "canwrite", (bits & 1) != 0);
+      return true;
     }
     case 20:
-        // check:
-        if (strlen(value) == 0) value = "2020";
-        for (i = 0; i < strlen(value); i++) {
-           if (isdigit(value[i]) == false) {
-             value = "2020";
-             break;
-           }
+      // check:
+      if (strlen(value) == 0) {
+        value = "2020";
+      }
+      for (i = 0; i < strlen(value); i++) {
+        if (isdigit(value[i]) == false) {
+          value = "2020";
+          break;
         }
-        n = atoi(value);
-        if (n < 2013) value = "2013";
-        MyConfig.SetParamValue("xvu", "modelyear", value);
-        return true;
+      }
+      n = atoi(value);
+      if (n < 2013) {
+        value = "2013";
+      }
+      MyConfig.SetParamValue("xvu", "modelyear", value);
+      return true;
     case 21:
-        // check:
-        if (strlen(value) == 0) value = "22";
-        for (i = 0; i < strlen(value); i++) {
-           if (isdigit(value[i]) == false) {
-             value = "22";
-             break;
-           }
+      // check:
+      if (strlen(value) == 0) {
+        value = "22";
+      }
+      for (i = 0; i < strlen(value); i++) {
+        if (isdigit(value[i]) == false) {
+          value = "22";
+          break;
         }
-        n = atoi(value);
-        if (n < 16) value = "16";
-        if (n > 30) value = "30";
-        MyConfig.SetParamValue("xvu", "cc_temp", value);
-        return true;
+      }
+      n = atoi(value);
+      if (n < 15) {
+        value = "15";
+      }
+      if (n > 30) {
+        value = "30";
+      }
+      MyConfig.SetParamValue("xvu", "cc_temp", value);
+      return true;
     default:
-        return OvmsVehicle::SetFeature(key, value);
-    }
+      return OvmsVehicle::SetFeature(key, value);
+  }
 }
 
 const std::string OvmsVehicleVWeUp::GetFeature(int key)
 {
-    switch (key)
-    {
-    case 15:
-    {
-        int bits = (MyConfig.GetParamValueBool("xvu", "canwrite", false) ? 1 : 0);
-        char buf[4];
-        sprintf(buf, "%d", bits);
-        return std::string(buf);
+  switch (key) {
+    case 15: {
+      int bits = (MyConfig.GetParamValueBool("xvu", "canwrite", false) ? 1 : 0);
+      char buf[4];
+      sprintf(buf, "%d", bits);
+      return std::string(buf);
     }
     case 20:
       return MyConfig.GetParamValue("xvu", "modelyear", STR(DEFAULT_MODEL_YEAR));
     case 21:
       return MyConfig.GetParamValue("xvu", "cc_temp", STR(21));
     default:
-        return OvmsVehicle::GetFeature(key);
-    }
+      return OvmsVehicle::GetFeature(key);
+  }
 }
 
 void OvmsVehicleVWeUp::ConfigChanged(OvmsConfigParam *param)
 {
-    if (param && param->GetName() != "xvu")
-       return;
+  if (param && param->GetName() != "xvu") {
+    return;
+  }
 
-    ESP_LOGD(TAG, "VW e-Up reload configuration");
-    vweup_modelyear_new = MyConfig.GetParamValueInt("xvu", "modelyear", DEFAULT_MODEL_YEAR);
-    vweup_enable_obd = MyConfig.GetParamValueBool("xvu", "con_obd", true);
-    vweup_enable_t26 = MyConfig.GetParamValueBool("xvu", "con_t26", true);
-    vweup_enable_write = MyConfig.GetParamValueBool("xvu", "canwrite", false);
-    vweup_cc_temp_int = MyConfig.GetParamValueInt("xvu", "cc_temp", 21);
-    if (vweup_enable_t26)
-        T26Init();    
-    vweup_con = vweup_enable_obd * 2 + vweup_enable_t26;
-    if (vweup_enable_obd || (vweup_modelyear<2020 && vweup_modelyear_new>2019) || (vweup_modelyear_new<2020 && vweup_modelyear>2019)) // switch between generations: reload OBD poll list
-    {
-        if (vweup_modelyear_new>2019) // set battery capacity & init calculated range
-        {
-            StandardMetrics.ms_v_bat_range_ideal->SetValue((260 * StandardMetrics.ms_v_bat_soc->AsFloat()) / 100.0); // This is dirty. Based on WLTP only. Should be based on SOH.
-        }
-        else
-        {
-            StandardMetrics.ms_v_bat_range_ideal->SetValue((160 * StandardMetrics.ms_v_bat_soc->AsFloat()) / 100.0); // This is dirty. Based on WLTP only. Should be based on SOH.
-        }
-        OBDInit();
-        #ifdef CONFIG_OVMS_COMP_WEBSERVER
-            WebDeInit();    // this can probably be done more elegantly... :-/
-            WebInit();
-        #endif
-    }
-    if (!vweup_enable_obd)
-        OBDDeInit();
-        #ifdef CONFIG_OVMS_COMP_WEBSERVER
-            WebDeInit();    // this can probably be done more elegantly... :-/
-            WebInit();
-        #endif
-    vweup_modelyear = vweup_modelyear_new;
-    if (!vweup_con)
-        ESP_LOGW(TAG,"Module will not work without any connection!");
+  ESP_LOGD(TAG, "VW e-Up reload configuration");
+  int vweup_modelyear_new = MyConfig.GetParamValueInt("xvu", "modelyear", DEFAULT_MODEL_YEAR);
+  bool vweup_enable_obd_new = MyConfig.GetParamValueBool("xvu", "con_obd", true);
+  vweup_enable_t26 = MyConfig.GetParamValueBool("xvu", "con_t26", true);
+  vweup_enable_write = MyConfig.GetParamValueBool("xvu", "canwrite", false);
+  vweup_cc_temp_int = MyConfig.GetParamValueInt("xvu", "cc_temp", 22);
+  int cell_interval_drv = MyConfig.GetParamValueInt("xvu", "cell_interval_drv", 15);
+  int cell_interval_chg = MyConfig.GetParamValueInt("xvu", "cell_interval_chg", 60);
+
+  bool do_obd_init = (
+    (!vweup_enable_obd && vweup_enable_obd_new) ||
+    (vweup_modelyear < 2020 && vweup_modelyear_new > 2019) ||
+    (vweup_modelyear_new < 2020 && vweup_modelyear > 2019) ||
+    (cell_interval_drv != m_cfg_cell_interval_drv) ||
+    (cell_interval_chg != m_cfg_cell_interval_chg));
+
+  vweup_modelyear = vweup_modelyear_new;
+  vweup_enable_obd = vweup_enable_obd_new;
+  m_cfg_cell_interval_drv = cell_interval_drv;
+  m_cfg_cell_interval_chg = cell_interval_chg;
+
+  // Connectors:
+  vweup_con = vweup_enable_obd * 2 + vweup_enable_t26;
+  if (!vweup_con) {
+    ESP_LOGW(TAG, "Module will not work without any connection!");
+  }
+
+  // Set model specific general vehicle properties:
+  //  Note: currently using standard specs
+  //  TODO: get actual capacity/SOH & max charge current
+  float socfactor = StdMetrics.ms_v_bat_soc->AsFloat() / 100;
+  if (vweup_modelyear > 2019)
+  {
+    // 32.3 kWh net / 36.8 kWh gross, 2P84S = 120 Ah, 260 km WLTP
+    StdMetrics.ms_v_bat_cac->SetValue(120);
+    StdMetrics.ms_v_bat_range_full->SetValue(260);
+    StdMetrics.ms_v_bat_range_ideal->SetValue(260 * socfactor);
+    StdMetrics.ms_v_charge_climit->SetValue(32);
+
+    // Battery pack layout: 2P84S in 14 modules
+    BmsSetCellArrangementVoltage(84, 6);
+    BmsSetCellArrangementTemperature(14, 1);
+    BmsSetCellLimitsVoltage(2.0, 5.0);
+    BmsSetCellLimitsTemperature(-39, 200);
+    BmsSetCellDefaultThresholdsVoltage(0.020, 0.030);
+    BmsSetCellDefaultThresholdsTemperature(2.0, 3.0);
+  }
+  else
+  {
+    // 16.4 kWh net / 18.7 kWh gross, 2P102S = 50 Ah, 160 km WLTP
+    StdMetrics.ms_v_bat_cac->SetValue(50);
+    StdMetrics.ms_v_bat_range_full->SetValue(160);
+    StdMetrics.ms_v_bat_range_ideal->SetValue(160 * socfactor);
+    StdMetrics.ms_v_charge_climit->SetValue(16);
+
+    // Battery pack layout: 2P102S in 17 modules
+    BmsSetCellArrangementVoltage(102, 6);
+    BmsSetCellArrangementTemperature(17, 1);
+    BmsSetCellLimitsVoltage(2.0, 5.0);
+    BmsSetCellLimitsTemperature(-39, 200);
+    BmsSetCellDefaultThresholdsVoltage(0.020, 0.030);
+    BmsSetCellDefaultThresholdsTemperature(2.0, 3.0);
+  }
+
+  // Init T26 subsystem:
+  if (vweup_enable_t26) {
+    T26Init();
+  }
+
+  // Init OBD subsystem:
+  if (do_obd_init) {
+    OBDInit();
+  }
+  else if (!vweup_enable_obd) {
+    OBDDeInit();
+  }
+
+#ifdef CONFIG_OVMS_COMP_WEBSERVER
+  // Init Web subsystem:
+  WebDeInit();    // this can probably be done more elegantly... :-/
+  WebInit();
+#endif
 }
 
 void OvmsVehicleVWeUp::Ticker1(uint32_t ticker)
 {
-    if (vweup_con == 2) // only OBD connected -> get car state by polling OBD
-    {
-        OBDCheckCarState();
+  if (vweup_con == CON_OBD)
+  {
+    // only OBD connected -> get car state by polling OBD
+    OBDCheckCarState();
+  }
+  else
+  {
+    // T26 connected
+
+    // This is just to be sure that we really have an asleep message. It has delay of 120 sec.
+    // Do we still need this?
+    if (StandardMetrics.ms_v_env_awake->IsStale()) {
+      StandardMetrics.ms_v_env_awake->SetValue(false);
     }
-    else // T26 connected
-    {
-        // This is just to be sure that we really have an asleep message. It has delay of 120 sec.
-        // Do we still need this?
-        if (StandardMetrics.ms_v_env_awake->IsStale())
-        {
-            StandardMetrics.ms_v_env_awake->SetValue(false);
-        }
 
-        // Autodisable climate control ticker (30 min.)
-        if (vweup_remote_climate_ticker != 0)
-        {
-            vweup_remote_climate_ticker--;
-            if (vweup_remote_climate_ticker == 1)
-            {
-                SendCommand(AUTO_DISABLE_CLIMATE_CONTROL);
-            }
-        }
-        // Car disabled climate control
-        if (!StandardMetrics.ms_v_env_on->AsBool() && vweup_remote_climate_ticker < 1770 && vweup_remote_climate_ticker != 0 && !StandardMetrics.ms_v_env_hvac->AsBool())
-        {
-            vweup_remote_climate_ticker = 0;
-
-            ESP_LOGI(TAG, "Car disabled Climate Control or cc did not turn on");
-
-            vweup_cc_on = false;
-            ocu_awake = true;
-        }
-        
+    // Autodisable climate control ticker (30 min.)
+    if (vweup_remote_climate_ticker != 0) {
+      vweup_remote_climate_ticker--;
+      if (vweup_remote_climate_ticker == 1) {
+        SendCommand(AUTO_DISABLE_CLIMATE_CONTROL);
+      }
     }
-    
+    // Car disabled climate control
+    if (!StandardMetrics.ms_v_env_on->AsBool() &&
+        vweup_remote_climate_ticker < 1770 &&
+        vweup_remote_climate_ticker != 0 &&
+        !StandardMetrics.ms_v_env_hvac->AsBool())
+    {
+      ESP_LOGI(TAG, "Car disabled Climate Control or cc did not turn on");
+      vweup_remote_climate_ticker = 0;
+      vweup_cc_on = false;
+      ocu_awake = true;
+    }
+  }
 }
 
 
 /**
  * GetNotifyChargeStateDelay: framework hook
  */
-int OvmsVehicleVWeUp::GetNotifyChargeStateDelay(const char* state)
+int OvmsVehicleVWeUp::GetNotifyChargeStateDelay(const char *state)
 {
   // With OBD data, wait for first voltage & current when starting the charge:
-  if (vweup_con == 2 && strcmp(state, "charging") == 0)
+  if (vweup_con == CON_OBD && strcmp(state, "charging") == 0) {
     return 5;
-  else
+  }
+  else {
     return 3;
+  }
 }
